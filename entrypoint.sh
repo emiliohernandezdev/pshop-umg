@@ -7,18 +7,17 @@ PORT="${PORT:-10000}"
 sed -i "s/Listen 80/Listen ${PORT}/g" /etc/apache2/ports.conf
 sed -i "s/<VirtualHost \*:80>/<VirtualHost *:${PORT}>/g" /etc/apache2/sites-available/000-default.conf
 
-# 2. PARCHE CRÍTICO: Reemplazar MyISAM por InnoDB en los archivos de instalación
-# Esto evita que Aiven rechace la creación de tablas temporales/fijas del core de PrestaShop
-if [ -d /var/www/html/install ]; then
-    echo "Aplicando parche: cambiando MyISAM por InnoDB en el instalador..."
-    find /var/www/html/install -type f -exec sed -i 's/MyISAM/InnoDB/g' {} +
-fi
+# 2. ELIMINAR MYISAM GLOBALMENTE: Reemplazar MyISAM por InnoDB en TODO el proyecto PrestaShop
+# Esto evita que el instalador CLI falle silenciosamente en los archivos .sql internos
+echo "Limpiando referencias a MyISAM en el código fuente para Aiven..."
+find /var/www/html -type f \( -name "*.php" -o -name "*.sql" -o -name "*.txt" \) -exec sed -i 's/MyISAM/InnoDB/g' {} + || true
+find /var/www/html -type f \( -name "*.php" -o -name "*.sql" -o -name "*.txt" \) -exec sed -i 's/myisam/innodb/g' {} + || true
 
-if [ -d /var/www/html/classes ]; then
-    find /var/www/html/classes -type f -exec sed -i 's/ENGINE=MyISAM/ENGINE=InnoDB/g' {} + || true
-fi
+# 3. Forzar variables para la instalación automática desatendida
+export PS_INSTALL_AUTO=1
+export PS_ENGINE="InnoDB"
 
-# 3. Ejecutar el entrypoint original de PrestaShop (permitiendo que corra la instalación automática CLI)
+# 4. Ejecutar el entrypoint original de PrestaShop
 if [ -f /usr/local/bin/docker-entrypoint.sh ]; then
     exec /usr/local/bin/docker-entrypoint.sh apache2-foreground
 else
