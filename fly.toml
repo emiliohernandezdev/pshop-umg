@@ -1,15 +1,15 @@
-# fly.toml app configuration file generated for pshop-umg on 2026-10-24T16:02:38Z
+# fly.toml app configuration file generated for pshop-umg on 2026-10-24T17:54:15Z
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
 app = 'pshop-umg'
-primary_region = 'lax'
+primary_region = 'iad'
 
 [build]
 
 [http_service]
-  internal_port = 8080
+  internal_port = 80
   force_https = true
   auto_stop_machines = 'stop'
   auto_start_machines = true
