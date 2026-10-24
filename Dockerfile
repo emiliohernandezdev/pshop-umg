@@ -1,11 +1,10 @@
 FROM prestashop/prestashop:latest
 
-# Copiar el script de entrada
+# Copiar el entrypoint
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 
-# Asegurar permisos de ejecución y limpiar saltos de línea de Windows (CRLF a LF)
+# Dar permisos y limpiar saltos de línea por si se editó en Windows
 RUN chmod +x /usr/local/bin/entrypoint.sh && \
     sed -i 's/\r$//' /usr/local/bin/entrypoint.sh
 
-# Definir el entrypoint actualizado
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
