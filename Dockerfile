@@ -1,9 +1,10 @@
 FROM prestashop/prestashop:latest
 
-# Copiar el entrypoint
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+# Respaldar los archivos originales antes de montar el volumen persistente
+RUN mkdir -p /usr/src/prestashop && cp -RT /var/www/html /usr/src/prestashop
 
-# Dar permisos y limpiar saltos de línea por si se editó en Windows
+# Copiar el script de entrada
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh && \
     sed -i 's/\r$//' /usr/local/bin/entrypoint.sh
 
