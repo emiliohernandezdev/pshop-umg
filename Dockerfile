@@ -1,11 +1,5 @@
 FROM prestashop/prestashop:latest
 
-# Respaldar los archivos originales antes de montar el volumen persistente
-RUN mkdir -p /usr/src/prestashop && cp -RT /var/www/html /usr/src/prestashop
-
-# Copiar el script de entrada
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh && \
-    sed -i 's/\r$//' /usr/local/bin/entrypoint.sh
-
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+# Forzar a Apache a escuchar en todas las interfaces (0.0.0.0:80) para que Fly.io pueda conectarse
+RUN sed -i "s/Listen 80/Listen 0.0.0.0:80/g" /etc/apache2/ports.conf || true
+RUN sed -i "s/\*:80/0.0.0.0:80/g" /etc/apache2/sites-available/000-default.conf || true
